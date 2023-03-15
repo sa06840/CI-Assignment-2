@@ -8,7 +8,9 @@ MAX_SIZE = 20
 MAX_LIFESPAN = 500
 WIDTH_BEAKER = 300
 HEIGHT_BEAKER = 300
-FLAME_INTENSITY=0.01
+FLAME_INTENSITY=0.1
+WIDTH_HEATSOURCE = 60
+HEIGHT_HEATSOURCE = 30
 
 class Particle:
     def __init__(self):
@@ -40,30 +42,19 @@ class Particle:
 
         #Initial Colors of the particles
         fill(self.redfactor*255 , self.greenfactor*255, self.bluefactor*255)
-        self.color_change()
+        # self.color_change()
     
-    def color_change(self):
-        
-        if self.greenfactor < 1 and self.flag==0:
-            self.greenfactor+=FLAME_INTENSITY
-            # print(self.greenfactor)
-        
-        if self.greenfactor >=1.0 and self.redfactor <1:
-           self.redfactor +=FLAME_INTENSITY
-           self.flag=1
-           # print(self.greenfactor, self.redfactor)
-        
-        if  self.redfactor >= 1:
-            self.bluefactor-=FLAME_INTENSITY
-            self.greenfactor-=FLAME_INTENSITY
+    
     
     
             # print(self.factor)
         # self.brightness += 0.001
          
         # Change the color of the particle based on its position
-        # if self.x < width/2 and self.y > height/2:
-        #     brightness = (self.y-height/2)/(height/2)
+        if self.x > (width/12 + WIDTH_BEAKER - WIDTH_HEATSOURCE) and self.y > (height/2.5 + HEIGHT_BEAKER - 30):
+            self.color_change()
+            self.speed_y -= 0.005
+            self.speed_x += 0.001
            
         #     fill(0, 0, brightness*255)
         # elif self.y > height/2:
@@ -78,7 +69,20 @@ class Particle:
         # else:
         #     fill(255, 0, 0)
             
-       
+    def color_change(self):
+        
+        if self.greenfactor < 1 and self.flag==0:
+            self.greenfactor+=FLAME_INTENSITY
+            # print(self.greenfactor)
+        
+        if self.greenfactor >=1.0 and self.redfactor <1:
+           self.redfactor +=FLAME_INTENSITY
+           self.flag=1
+           # print(self.greenfactor, self.redfactor)
+        
+        if  self.redfactor >= 1:
+            self.bluefactor-=FLAME_INTENSITY
+            self.greenfactor-=FLAME_INTENSITY   
         
     # Change the direction of the particle based on its position
     def check_boundaries(self):
@@ -114,6 +118,12 @@ def draw():
     stroke(255,255,255)
     strokeWeight(10)
     rect(width/12, height/2.5, WIDTH_BEAKER, HEIGHT_BEAKER)
+    
+    # Drawing the heat source
+    fill(255, 0, 0)
+    stroke(255,255,255)
+    strokeWeight(0)
+    rect(width/12 + WIDTH_BEAKER - WIDTH_HEATSOURCE, height/2.5 + HEIGHT_BEAKER + 20 , WIDTH_HEATSOURCE, HEIGHT_HEATSOURCE)
     
     # Adding text at the top of the screen
     fill(255,255,255)
