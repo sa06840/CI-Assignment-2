@@ -47,7 +47,7 @@ class Particle:
     
     
     
-            # print(self.factor)
+        # print(self.factor)
         # self.brightness += 0.001
          
         # Change the color of the particle based on its position
@@ -82,7 +82,7 @@ class Particle:
         
         if  self.redfactor >= 1:
             self.bluefactor-=FLAME_INTENSITY
-            self.greenfactor-=FLAME_INTENSITY   
+            self.greenfactor-=FLAME_INTENSITY
         
     # Change the direction of the particle based on its position
     def check_boundaries(self):
@@ -98,6 +98,16 @@ class Particle:
     def lifeSpan(self):  
         # Decrease the lifespan of the particle
         self.lifespan -= 1
+        
+    def collide(self):
+        for other in particles:
+            if other != self:
+                distance = dist(self.x, self.y, other.x, other.y)
+                if distance < self.size/2 + other.size/2:
+                    self.speed_x *= -1
+                    self.speed_y *= -1
+                    other.speed_x *= -1
+                    other.speed_y *= -1
 
 particles = []
 
@@ -139,6 +149,7 @@ def draw():
         particle.display()
         # particle.lifeSpan()
         particle.check_boundaries()
+        # particle.collide()
         
     # If the particle has died, create a new one
     particles[:] = [particle for particle in particles if particle.lifespan > 0]
