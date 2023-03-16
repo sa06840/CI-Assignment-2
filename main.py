@@ -1,6 +1,7 @@
 import vrplib
 import random
 import copy
+from matplotlib import pyplot as plt
 
 
 class VehicleRoutingProblem():
@@ -9,7 +10,7 @@ class VehicleRoutingProblem():
         self.numberOfAnts = ants
         self.population = []
         self.costs = []
-        vrplib.download_instance("A-n32-k5", "actual.vrp")
+        vrplib.download_instance("A-n80-k10", "actual.vrp")
         self.instance = vrplib.read_instance("actual.vrp")
         # print(self.instance)
         self.distances = self.instance['edge_weight']
@@ -142,7 +143,10 @@ class VehicleRoutingProblem():
                     self.EtaTable[customer1][customer2] = 0
                 else:
                     value = self.distances[customer1][customer2]
-                    self.EtaTable[customer1][customer2] = 1/value
+                    if value == 0:
+                        self.EtaTable[customer1][customer2] = 0
+                    else:
+                       self.EtaTable[customer1][customer2] = 1/value
 
         # print(self.EtaTable)
 
@@ -179,40 +183,40 @@ class VehicleRoutingProblem():
 
         # FIRST APPROACH
         
-        demands = []
-        for key, value in ranges.items():
-            demands.append(self.demands[key])
+        # demands = []
+        # for key, value in ranges.items():
+        #     demands.append(self.demands[key])
         
-        demands.sort()
+        # demands.sort()
 
-        if capacity >= demands[0]:
-            demand = 10000000000000
-            while demand > capacity:
-                randomIndex = random.uniform(0,1)
-                for key, value in ranges.items():
-                    if randomIndex >= value[0] and randomIndex <= value[1]:
-                        demand = self.demands[key]
-                        break
-            selectedCustomer = key
+        # if capacity >= demands[0]:
+        #     demand = 10000000000000
+        #     while demand > capacity:
+        #         randomIndex = random.uniform(0,1)
+        #         for key, value in ranges.items():
+        #             if randomIndex >= value[0] and randomIndex <= value[1]:
+        #                 demand = self.demands[key]
+        #                 break
+        #     selectedCustomer = key
 
-        elif capacity < demands[0]:
-            selectedCustomer = self.depot
+        # elif capacity < demands[0]:
+        #     selectedCustomer = self.depot
 
-        return selectedCustomer
+        # return selectedCustomer
 
         # SECOND APPROACH
 
-        # while (len(ranges) > 0):
-        #     randomIndex = random.uniform(0,1)
-        #     for key, value in ranges.items():
-        #         if randomIndex >= value[0] and randomIndex <= value[1]:
-        #             demand = self.demands[key]
-        #             if demand <= capacity:
-        #                 return key
-        #             else:
-        #                 greaterDemand.append(key)
-        #                 ranges = self.calculateTransitionProbabilities(currentCustomer, visited, greaterDemand)
-        # return self.depot
+        while (len(ranges) > 0):
+            randomIndex = random.uniform(0,1)
+            for key, value in ranges.items():
+                if randomIndex >= value[0] and randomIndex <= value[1]:
+                    demand = self.demands[key]
+                    if demand <= capacity:
+                        return key
+                    else:
+                        greaterDemand.append(key)
+                        ranges = self.calculateTransitionProbabilities(currentCustomer, visited, greaterDemand)
+        return self.depot
 
 
     def getNewRoute(self):
@@ -250,8 +254,14 @@ def ACO(iterations, numberOfAnts, evaporationRate, alpha, beta):
     T.updateTauTable()
     T.calculateEta()
     # print(T.population)    
+    globalBest = 1000000
+
+    bestFitness = []
+    averageFitnesses = []
+    xAxis = []
 
     for iteration in range(iterations):
+        fitnesses = []
         print("***** Iteration: " + str(iteration+1) + " *****")
 
         for i in range(numberOfAnts):
@@ -263,13 +273,35 @@ def ACO(iterations, numberOfAnts, evaporationRate, alpha, beta):
 
         T.population.sort()
         print(T.population[0])
+        bestFitness.append(T.population[0][0])
+
+        if T.population[0][0] < globalBest:
+            globalBest = T.population[0][0]
+
+        for i in range(numberOfAnts):
+            fitnesses.append(T.population[i][0])
+
+        averageFitness = sum(fitnesses)/len(fitnesses)
+        averageFitnesses.append(averageFitness)
+        xAxis.append(iteration)
+
+    print(globalBest)
+
+    plt.plot(xAxis, averageFitnesses, label = "Average Fitness")
+    plt.plot(xAxis, bestFitness, label="Best Fitness")
+
+    plt.xlabel("Iterations")
+    plt.ylabel("Fitness")
+    plt.legend()
+    plt.show()
 
 
-iterations = 10
+
+iterations = 100
 numberOfAnts = 10
-evaporationRate = 0.02
+evaporationRate = 0.2
 alpha = 2
-beta = 2
+beta = 3
 
 ACO(iterations, numberOfAnts, evaporationRate, alpha, beta)
 
