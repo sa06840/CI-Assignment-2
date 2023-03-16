@@ -7,7 +7,7 @@ from saucepan import Saucepan
 # Set up some constants
 NUM_PARTICLES = 50
 MAX_SPEED = 1
-MAX_SIZE = 10
+MAX_SIZE = 15
 MAX_LIFESPAN = 500
 WIDTH_BEAKER = 200
 HEIGHT_BEAKER = 250
@@ -32,10 +32,9 @@ class Particle:
         self.greenfactor = 0
         self.redfactor = 0
         
+        
         self.flag=0
         
-
-      
 
     def move(self):
         # Add a constant upward force to simulate movement up the screen
@@ -46,13 +45,11 @@ class Particle:
         self.y += self.speed_y
 
         #Initial Colors of the particles
-        R= self.redfactor*255 
-        G = self.greenfactor*255
-        B = self.bluefactor*255
-        fill(R,G,B)
+        self.R= self.redfactor*255 
+        self.G = self.greenfactor*255
+        self.B = self.bluefactor*255
+        fill(self.R,self.G,self.B)
         # self.color_change()
-    
-    
     
     
         # print(self.factor)
@@ -131,34 +128,52 @@ class Particle:
                     
                     other.speed_x = temp_x
                     other.speed_y = temp_y
+                    
+                    currentEnergy = 100*self.redfactor + 10*self.greenfactor + self.bluefactor
+                    otherEnergy = 100*other.redfactor + 10*other.greenfactor + other.bluefactor
+                    
+                    if (currentEnergy > otherEnergy):
+                        # tempR = other.redfactor
+                        # tempG = other.greenfactor
+                        # tempB = other.bluefactor
+                        
+                        other.redfactor += 0.5
+                        other.greenfactor += 0.5
+                        other.bluefactor += 0.5
+                        
+                        self.redfactor -= 0.5
+                        self.greenfactor -= 0.5
+                        self.bluefactor -= 0.5
+                        
+                    
 
 particles = []
 
 def setup():
-    size(994, 499)
+    size(994, 501)
     # rect(50, 50, 300, 300) # Add a rectangular beaker
     for i in range(NUM_PARTICLES):
         particles.append(Particle())
         
-def draw():
-    screen = Screen()
-    screen.draw()
-    # image(img,0,0)
-    
-    # background(img)
-    
-    # img = loadImage("GreenKitchen.png")
-    # background(img)
-    saucepan = Saucepan()
-    saucepan.draw(width/2.2, height/2.2)
-    # fill(173, 216, 230) # Set the fill color to light blue
-    # rect(50, 50, 300, 300) 
+def drawElements():
     
     # Drawing the beaker
     fill(102, 204, 255)
     stroke(0,255,0)
     strokeWeight(0)
     rect(width/12, height/3.5, WIDTH_BEAKER, HEIGHT_BEAKER)
+    
+    # Drawing arrows
+    fill(0,100,0)
+    stroke(0,100,0)
+    strokeWeight(10)
+    line(width/2 + 40, height/2 + 20, width/4 + 35, height/4 + 20)
+    
+    fill(0,100,0)
+    stroke(0,100,0)
+    strokeWeight(10)
+    line(552, 385, 281, 427)
+
     
     # Drawing the heat source
     fill(255, 0, 0)
@@ -171,6 +186,15 @@ def draw():
     textSize(40)
     textAlign(CENTER)
     text("Boiling Water", width/2, 90)
+
+def draw():
+    screen = Screen()
+    screen.draw()
+    
+    saucepan = Saucepan()
+    saucepan.draw(width/2.2, height/2.2)
+    
+    drawElements()
     
     #Resetting stroke weight(default value) for the particles 
     strokeWeight(1)
@@ -188,9 +212,10 @@ def draw():
         particles.append(Particle())
         
 def mousePressed():
-    global MAX_SIZE
-    # MAX_SIZE = uniform(5, 30)
-    MAX_SIZE =   MAX_SIZE/2
+    # global MAX_SIZE
+    # # MAX_SIZE = uniform(5, 30)
+    # MAX_SIZE =   MAX_SIZE/2
+    print(mouseX, mouseY)
     
 def keyPressed():
     # global MAX_SPEED
